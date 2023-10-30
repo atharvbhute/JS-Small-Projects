@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class=" h-[100vh] bg-gradient-to-t from-blue-500 to-orange-500 grid place-content-center">
+        <div class="h-[400px] w-[650px] bg-slate-300 rounded-3xl">
+            <div class="h-[40%] w-[85%] bg-gray-950 ml-[7.5%] mt-14 rounded-2xl">
+                <div class="text-white text-center pt-10">
+                    <p id="count" class="font-extralight"></p>
+                    <p id="quote" class="font-normal"></p>
+                    <p id="author" class="flex justify-end pr-9 pt-8 font-extralight"></p>
+                </div>
+            </div>
+            <div class="flex justify-around mt-11">
+                <button id="pre" type="button" class="h-20 w-20 bg-gray-950 rounded-full text-white">pre</button>
+                <button id="next" type="button" class="h-20 w-20 bg-gray-950 rounded-full text-white">next</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+
+    const quote = document.querySelector("#quote");
+    const author = document.querySelector("#author");
+    const pre = document.querySelector("#pre");
+    const next = document.querySelector("#next");
+    const count = document.querySelector("#count");
+
+
+    const quoteData = fetch('https://type.fit/api/quotes');
+
+    quoteData.then((response)=>{
+        return response.json();
+    }).then((data)=>{
+        
+        const quoteCount = Object.keys(data).length;
+        let init = 0;
+
+            changeQuote();
+            checkButton();
+
+            function checkButton(){
+                if (init == 0) {
+                    pre.setAttribute('disabled',"");
+                    // pre.classList.add("bg-gray-500");        
+                }else{
+                    pre.removeAttribute('disabled');
+                    // pre.classList.remove("bg-gray-950");
+                }
+                if (init == 15) {
+                    next.setAttribute('disabled',"");
+                    // next.classList.add("bg-gray-500");                
+                }else{
+                    next.removeAttribute('disabled');
+                    // next.classList.remove("bg-gray-950");
+                }
+            }
+
+            function changeQuote(){
+                quote.innerHTML =  `${data[init].text}`
+                author.innerHTML =  `${data[init].author}`
+
+                // count.innerHTML = (init + 1);
+
+                console.log(init);
+            }
+
+            pre.addEventListener('click',()=>{
+                init --;
+                changeQuote();
+                checkButton();
+            })
+
+            next.addEventListener('click',()=>{
+                changeQuote();
+                init ++;
+                checkButton();
+            })
+
+            // console.log(quoteDataJSON[0]);
+    })
+
+</script>
+</html>
