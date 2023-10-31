@@ -18,6 +18,8 @@
             </div>
             <div class="flex justify-around mt-11">
                 <button id="pre" type="button" class="h-20 w-20 bg-gray-950 rounded-full text-white">pre</button>
+                <button id="generate" type="button" class="bg-gray-950 text-white rounded-2xl">Generate Quotes</button>
+                <button id="turn-off" type="button" class="bg-gray-950 text-white rounded-2xl">Turn Off</button>
                 <button id="next" type="button" class="h-20 w-20 bg-gray-950 rounded-full text-white">next</button>
             </div>
         </div>
@@ -30,15 +32,46 @@
     const pre = document.querySelector("#pre");
     const next = document.querySelector("#next");
     const count = document.querySelector("#count");
+    const generate = document.querySelector('#generate');
+    const turnOff = document.querySelector("#turn-off");
 
+    let quoteData = null
 
-    const quoteData = fetch('https://type.fit/api/quotes');
+    pre.setAttribute('disabled',"");
+    next.setAttribute('disabled',"");
+    turnOff.setAttribute('disabled',"");
 
-    quoteData.then((response)=>{
-        return response.json();
-    }).then((data)=>{
-        
-        const quoteCount = Object.keys(data).length;
+    generate.addEventListener('click',()=>{
+        fetch('https://type.fit/api/quotes').then((response)=>{
+            return response.json();
+        }).then((data)=>{
+            generateQuote(data);
+        }).catch((err)=>{
+            quote.innerHTML = `${err}`
+        })
+        turnOff.removeAttribute('disabled');
+        generate.setAttribute('disabled',"");
+                
+    })
+
+    if (!quoteData) {
+        quote.innerHTML = "Click on Generate Quotes to Start generating quotes"
+    }
+
+    turnOff.addEventListener('click',()=>{
+        quote.innerHTML = "Quote generator is been stopped click on Generate Quotes to Start generating quotes again"
+        count.innerHTML = ""
+        author.innerHTML = ""
+        pre.setAttribute('disabled',"");
+        next.setAttribute('disabled',"");
+        turnOff.setAttribute('disabled',"");
+        generate.removeAttribute('disabled');
+        quoteData = null;
+    })
+
+    function generateQuote(data){
+
+       const quoteCount = Object.keys(data).length;
         let init = 0;
 
             changeQuote();
@@ -62,28 +95,28 @@
             }
 
             function changeQuote(){
+                // console.log(init);
+
                 quote.innerHTML =  `${data[init].text}`
                 author.innerHTML =  `${data[init].author}`
 
-                // count.innerHTML = (init + 1);
+                count.innerHTML = (init + 1);
 
-                console.log(init);
             }
 
             pre.addEventListener('click',()=>{
-                init --;
+                --init;
                 changeQuote();
                 checkButton();
             })
 
             next.addEventListener('click',()=>{
+                ++init;
                 changeQuote();
-                init ++;
                 checkButton();
             })
-
-            // console.log(quoteDataJSON[0]);
-    })
+            
+        }
 
 </script>
 </html>
