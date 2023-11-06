@@ -38,7 +38,7 @@
             <div class="flex flex-col justify-between mt-10 ml-4 space-y-6">
                 <div class="flex flex-row justify-between">
                     <h3 class="text-xl">Hi, Atharv</h3>
-                    <button class="float-right h-15 w-30 rounded-xl p-3 text-lg font-semibold text-white transition-colors duration-300 bg-blue-500 shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4">Log Out</button>
+                    <button id="logOut" class="float-right h-15 w-30 rounded-xl p-3 text-lg font-semibold text-white transition-colors duration-300 bg-blue-500 shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4">Log Out</button>
                 </div>
                 <hr>
             </div>
@@ -90,45 +90,73 @@
 
         const app = initializeApp(firebaseConfig);
 
-//++++++++++++++++++++++++++++++ Log In Page ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
+//++++++++++++++++++++++++++++++ Log/ logOut Function ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
 
         const email = document.querySelector("#email");
         const password = document.querySelector("#password");
         const logIn = document.querySelector("#login");
         const signUp = document.querySelector("#signup");
         const loginFormPage = document.querySelector("#logInForm");
-        const todoListPage = document.querySelector("#todolist-page"); 
+        const todoListPage = document.querySelector("#todolist-page");
+        const logOut = document.querySelector("#logOut");
+
 
         const auth = getAuth();
 
-        signUp.addEventListener('click',(e)=>{
-            e.preventDefault();
-            createUserWithEmailAndPassword(auth, email.value, password.value)
-            .then((userCredential) => {
-            // Signed up 
-            const user = userCredential.user;
-            alert(`Hi ${user.email} your account is created`);
-            })
-            .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            alert(error, errorMessage);
+        async function checkUserState(){
+            onAuthStateChanged(auth, (user) => {
+            if(user) {
+                loginFormPage.style.display = 'none';
+                todoListPage.style.display = 'block'
+                UserId = user.uid;
+            }else{
+                loginFormPage.style.display = 'block';
+                todoListPage.style.display = 'none'
+                UserId = null;   
+            }
             });
+        }
+        checkUserState();
+
+        async function createUser(email, password){
+            try {
+                await createUserWithEmailAndPassword(auth,email,password);
+            } catch(error) {
+                alert(error)
+            }
+        }
+
+        async function SignIn(email, password){
+            try {
+                await signInWithEmailAndPassword(auth,email,password);
+                console.log(user);
+            } catch(error) {
+                alert(error)                
+            }
+        }
+
+        async function userSignOut(){
+            try {
+                await signOut(auth)
+            } catch (error) {
+                alert(error);                
+            }
+        }
+
+        signUp.addEventListener('click',(e) => {
+            e.preventDefault();
+            createUser(email.value, password.value);
         });
 
-        logIn.addEventListener('click',(e)=>{
+        logIn.addEventListener('click',(e) => {
             e.preventDefault();
-            signInWithEmailAndPassword(auth, email.value, password.value)
-            .then((userCredential) => {
-            const user = userCredential.user;
-            alert(user.uid) 
-            })
-            .catch((error) => {
-             const errorCode = error.code;
-             const errorMessage = error.message;
-             alert(errorMessage);
-            });
-        });
+            SignIn(email.value, password.value);
+        })
+
+        logOut.addEventListener('click',(e)=>{
+            e.preventDefault();
+            userSignOut();
+        })
 
 //++++++++++++++++++++++++++++++++++++ To Do List Page ++++++++++++++++++++++++++++
         const addTast = document.querySelector("#addtast");
@@ -147,45 +175,31 @@
                         </li>`;
 
 // +++++++++++++++++++++++++++++++ using offline object based data for tasks ++++++++++++++++++++++++++++++++++++++++
-       user = auth.currentUser;
-       userId = user.uid                     
-       let data = {
-        userId : {
-            taskId : {
-                completed : false
-            }
-        }
-       }
+    //    user = auth.currentUser;
+    //    userId = user.uid                     
+    //    let data = {
+    //     userId : {
+    //         taskId : {
+    //             completed : false
+    //         }
+    //     }
+    //    }
 
        // create task
 
-       function createTask(task, userUID){
-        data[userUID] = {task : {completed: false}}
-       }
+    //    function createTask(task, userUID){
+    //     data[userUID] = {task : {completed: false}}
+    //    }
 
-       addTast.addEventListener('click',(e) => {
-        e.preventDefault();
-        task = taskId.value;
-        alert(task);
-        // createTask(task, userId);
-        console.log(data);
-       })
+    //    addTast.addEventListener('click',(e) => {
+    //     e.preventDefault();
+    //     task = taskId.value;
+    //     alert(task);
+    //     // createTask(task, userId);
+    //     console.log(data);
+    //    })
  
-// +++++++++++++++++++++++ checking authstate +++++++++++++++++++
 
-       async function checkUserSignedIn(){
-        onAuthStateChanged(auth, user =>{
-            if(user){
-                loginFormPage.style.display = 'none';
-                todoListPage.style.display = 'block'
-            }else{
-                loginFormPage.style.display = 'block';
-                todoListPage.style.display = 'none'
-            }
-        })
-       }
-
-       checkUserSignedIn();
-        
+            
     </script>
 <html>
