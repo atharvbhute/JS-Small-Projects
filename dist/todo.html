@@ -75,7 +75,8 @@
             onAuthStateChanged
          } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-database.js";
+
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 
         const firebaseConfig = {
@@ -103,24 +104,30 @@
 
         const auth = getAuth();
 
+        const db = getFirestore(app);
+
+        const currentUser = auth.createUser;
+
         async function checkUserState(){
             onAuthStateChanged(auth, (user) => {
             if(user) {
                 loginFormPage.style.display = 'none';
                 todoListPage.style.display = 'block'
-                UserId = user.uid;
             }else{
                 loginFormPage.style.display = 'block';
-                todoListPage.style.display = 'none'
-                UserId = null;   
+                todoListPage.style.display = 'none' 
             }
             });
         }
+
         checkUserState();
 
         async function createUser(email, password){
             try {
-                await createUserWithEmailAndPassword(auth,email,password);
+                let userCredentials = await createUserWithEmailAndPassword(auth,email,password);
+                addDoc(collection(db,'users'),{
+                    UID: userCredentials.user.uid
+                })
             } catch(error) {
                 alert(error)
             }
@@ -129,7 +136,6 @@
         async function SignIn(email, password){
             try {
                 await signInWithEmailAndPassword(auth,email,password);
-                console.log(user);
             } catch(error) {
                 alert(error)                
             }
@@ -174,31 +180,29 @@
                         </div>
                         </li>`;
 
-// +++++++++++++++++++++++++++++++ using offline object based data for tasks ++++++++++++++++++++++++++++++++++++++++
-    //    user = auth.currentUser;
-    //    userId = user.uid                     
-    //    let data = {
-    //     userId : {
-    //         taskId : {
-    //             completed : false
-    //         }
-    //     }
-    //    }
+//+++++++++++++++++++ Adding Task +++++++++++++++++++++++++++++++++++++++++++++++++++++++  
+        async function addItem(){
 
-       // create task
+            try {
+                const docRef = await addDoc(collection(db, 'users'), {
+                    taskname : {
+                        completed : false
+                    }
+                });
+                alert('item added')
+            } catch (error) {
+                alert(error);         
+            }
 
-    //    function createTask(task, userUID){
-    //     data[userUID] = {task : {completed: false}}
-    //    }
+        }
 
-    //    addTast.addEventListener('click',(e) => {
-    //     e.preventDefault();
-    //     task = taskId.value;
-    //     alert(task);
-    //     // createTask(task, userId);
-    //     console.log(data);
-    //    })
- 
+
+        addTast.addEventListener('click', (e)=>{
+            e.preventDefault();
+            addItem();
+
+        })
+        
 
             
     </script>
