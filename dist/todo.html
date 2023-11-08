@@ -44,16 +44,7 @@
             </div>
             <div >
                 <ul class="flex flex-col space-y-2">
-                    <li class="">
-                        <div class="bg-slate-50 pl-5 p-2 w-full rounded-xl text-black shadow-black shadow-sm flex flex-row space-x-1">
-                            <p>asdfadf</p>
-                            <div class="text-[20px] flex flex-row space-x-3 justify-end w-full">
-                                <i class="bi bi-check2-square"></i>
-                                <i class="pl-3 bi bi-pencil-square"></i>
-                                <i class="bi bi-trash"></i>
-                            </div> 
-                        </div>
-                    </li>                  
+                                
                 </ul>
             </div>
             <input
@@ -106,16 +97,18 @@
 
         const db = getFirestore(app);
 
-        const currentUser = auth.createUser;
+        const currentUser = null;
 
         async function checkUserState(){
             onAuthStateChanged(auth, (user) => {
             if(user) {
                 loginFormPage.style.display = 'none';
                 todoListPage.style.display = 'block'
+                getItems(user); // here passing user object to get the data from that perticular user only
             }else{
                 loginFormPage.style.display = 'block';
-                todoListPage.style.display = 'none' 
+                todoListPage.style.display = 'none';
+                removeListItems();
             }
             });
         }
@@ -124,7 +117,7 @@
 
         async function createUser(email, password){
             try {
-                createUserWithEmailAndPassword(auth,email,password);
+                const userCredentials = await createUserWithEmailAndPassword(auth,email,password);
             } catch(error) {
                 alert(error)
             }
@@ -132,7 +125,7 @@
 
         async function SignIn(email, password){
             try {
-                await signInWithEmailAndPassword(auth,email,password);
+                const userCredentials = await signInWithEmailAndPassword(auth,email,password);
             } catch(error) {
                 alert(error)                
             }
@@ -166,17 +159,6 @@
         const taskId = document.querySelector('#taskId');
         const list = document.querySelector('ul');
 
-        let listItem = `<li class="">
-                        <div class="bg-slate-50 pl-5 p-2 w-full rounded-xl text-black shadow-black shadow-sm flex flex-row space-x-1">
-                            <p>asdfasdf</p>
-                            <div class="text-[20px] flex flex-row space-x-3 justify-end w-full">
-                                <i class="bi bi-check2-square"></i>
-                                <i class="pl-3 bi bi-pencil-square"></i>
-                                <i class="bi bi-trash"></i>
-                            </div> 
-                        </div>
-                        </li>`;
-
 //+++++++++++++++++++ Adding Task +++++++++++++++++++++++++++++++++++++++++++++++++++++++  
                 
         async function addItem(task){
@@ -185,7 +167,6 @@
                     completed : false,
                     taskName : task               
                 });
-                alert(docRef.id)
             } catch (error) {
                 alert(error);         
             }
@@ -197,23 +178,47 @@
             if (taskname == "") {
                 alert('this field cannot be empty');                
             } else {
-                addItem(taskname);                                
+                addItem(taskname);
+                // getItems(auth.currentUser);                         
             }         
         })
  
 //++++++++++++++++++ reading task ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        const getItems = async function(){
+        const getItems = async function(user){
 
             try {
-                const querySnapshot = await getDocs(collection(db, auth.currentUser.uid));
-                console.log(querySnapshot);                  
+                const querySnapshot = await getDocs(collection(db, user.uid));
+                querySnapshot.forEach((item)=>{
+                    createTaskList(item); // giving item objects to list items to fetch specific data
+                })               
             } catch (error) {
                 console.log(error);
             }
         }
 
-        getItems();
+//+++++++++++ creating task list +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        function createTaskList(item){
+            
+            const li = document.createElement('li');
+            li.innerHTML  = `<div class="bg-white pl-5 p-2 w-full rounded-xl text-black shadow-gray shadow-lg flex flex-row space-x-1">
+                                <p class="w-full">${item.data().taskName}</p>
+                                <div class="text-[20px] flex flex-row space-x-3 justify-end w-full">
+                                    <i id="task-completed" class="bi bi-check2-square"></i>
+                                    <i id="edit-task" class="pl-3 bi bi-pencil-square"></i>
+                                    <i id="delete-task" class="bi bi-trash"></i>
+                                </div> 
+                            </div>`;
+            list.appendChild(li);
+        }
+// +++++++++++++++ removing list items +++++++++++++++++++++++++++
+        function removeListItems() {
+            list.innerHTML = "";            
+        }        // this is to delete list items which are created and appended to list.
+
+// +++++++++++++++++ work on adding list items on realtime basis +++++++++++++++++++++++++++++++++
+
+        
 
          
         
