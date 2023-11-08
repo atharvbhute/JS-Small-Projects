@@ -65,7 +65,7 @@
         </div>        
     </body>
     <script type="module">
-/*++++++++++++++++++++++++++++++ Firebase Auth ++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+/*++++++++++++++++++++++++++++++ Firebase config ++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
         import { getAuth, 
@@ -76,7 +76,7 @@
          } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
 
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 
         const firebaseConfig = {
@@ -124,10 +124,7 @@
 
         async function createUser(email, password){
             try {
-                let userCredentials = await createUserWithEmailAndPassword(auth,email,password);
-                addDoc(collection(db,'users'),{
-                    UID: userCredentials.user.uid
-                })
+                createUserWithEmailAndPassword(auth,email,password);
             } catch(error) {
                 alert(error)
             }
@@ -181,27 +178,44 @@
                         </li>`;
 
 //+++++++++++++++++++ Adding Task +++++++++++++++++++++++++++++++++++++++++++++++++++++++  
-        async function addItem(){
-
+                
+        async function addItem(task){
             try {
-                const docRef = await addDoc(collection(db, 'users'), {
-                    taskname : {
-                        completed : false
-                    }
+                const docRef = await addDoc(collection(db, auth.currentUser.uid), {
+                    completed : false,
+                    taskName : task               
                 });
-                alert('item added')
+                alert(docRef.id)
             } catch (error) {
                 alert(error);         
             }
-
         }
-
 
         addTast.addEventListener('click', (e)=>{
             e.preventDefault();
-            addItem();
-
+            const taskname = taskId.value;
+            if (taskname == "") {
+                alert('this field cannot be empty');                
+            } else {
+                addItem(taskname);                                
+            }         
         })
+ 
+//++++++++++++++++++ reading task ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        const getItems = async function(){
+
+            try {
+                const querySnapshot = await getDocs(collection(db, auth.currentUser.uid));
+                console.log(querySnapshot);                  
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        getItems();
+
+         
         
 
             
