@@ -42,8 +42,8 @@
                 </div>
                 <hr>
             </div>
-            <div >
-                <ul class="flex flex-col space-y-2">
+            <div>
+                <ul class=" h-[400px] flex flex-col space-y-2 overflow-y-auto">
                                 
                 </ul>
             </div>
@@ -67,7 +67,7 @@
          } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
 
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 
         const firebaseConfig = {
@@ -167,6 +167,10 @@
                     completed : false,
                     taskName : task               
                 });
+                // below two lines update task in realtime
+                const newAddedTask = await getDoc(doc(db, auth.currentUser.uid, docRef.id));
+                createTaskList(newAddedTask);
+
             } catch (error) {
                 alert(error);         
             }
@@ -187,6 +191,9 @@
 
         const getItems = async function(user){
 
+            removeListItems(); // this function will clean elements which are added everytime it fetch all elements.
+            // so that items which are added will get cleared.
+
             try {
                 const querySnapshot = await getDocs(collection(db, user.uid));
                 querySnapshot.forEach((item)=>{
@@ -201,14 +208,17 @@
         function createTaskList(item){
             
             const li = document.createElement('li');
-            li.innerHTML  = `<div class="bg-white pl-5 p-2 w-full rounded-xl text-black shadow-gray shadow-lg flex flex-row space-x-1">
+            li.innerHTML  = `<div class="pl-5 p-2 w-full rounded-xl text-black flex flex-row space-x-1">
                                 <p class="w-full">${item.data().taskName}</p>
                                 <div class="text-[20px] flex flex-row space-x-3 justify-end w-full">
-                                    <i id="task-completed" class="bi bi-check2-square"></i>
-                                    <i id="edit-task" class="pl-3 bi bi-pencil-square"></i>
-                                    <i id="delete-task" class="bi bi-trash"></i>
+                                    <i id="task-completed" class="bi bi-check2-square" value="${item.id}"></i>
+                                    <i id="edit-task" class="pl-3 bi bi-pencil-square" value="${item.id}"></i>
+                                    <i id="delete-task" class="bi bi-trash" value="${item.id}"></i>
                                 </div> 
-                            </div>`;
+                            </div>
+                            <hr>
+                            `;
+                            
             list.appendChild(li);
         }
 // +++++++++++++++ removing list items +++++++++++++++++++++++++++
