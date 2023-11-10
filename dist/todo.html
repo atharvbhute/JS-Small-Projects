@@ -43,7 +43,7 @@
                 <hr>
             </div>
             <div>
-                <ul class=" h-[400px] flex flex-col space-y-2 overflow-y-auto">
+                <ul id="taskList" class=" h-[400px] flex flex-col space-y-2 overflow-y-auto">
                                 
                 </ul>
             </div>
@@ -209,7 +209,7 @@
             
             const li = document.createElement('li');
             li.innerHTML  = `<div class="pl-5 p-2 w-full rounded-xl text-black flex flex-row space-x-1">
-                                <p class="w-full">${item.data().taskName}</p>
+                                <p id="${item.id}" class="w-full">${item.data().taskName}</p>
                                 <div class="text-[20px] flex flex-row space-x-3 justify-end w-full">
                                     <i id="task-completed" class="bi bi-check2-square" value="${item.id}"></i>
                                     <i id="edit-task" class="pl-3 bi bi-pencil-square" value="${item.id}"></i>
@@ -226,7 +226,25 @@
             list.innerHTML = "";            
         }        // this is to delete list items which are created and appended to list.
 
-// +++++++++++++++++ work on adding list items on realtime basis +++++++++++++++++++++++++++++++++
+// +++++++++++++++++ Completed, Edit and Delete Task +++++++++++++++++++++++++++++++++
+
+        const strike = document.querySelector("#taskList");
+        strike.addEventListener('click',(e)=>{
+            let targetElement = e.target;
+            strikeTask(targetElement);
+        });
+
+        function strikeTask(taskElement){
+            let elementToStrike = document.getElementById(`${taskElement.getAttribute('value')}`);
+            console.log(elementToStrike);
+            // taskElement.classList.add("line-through");
+            const listtaskitem = elementToStrike.innerHTML;
+            elementToStrike.innerHTML = `<s>${listtaskitem}</s>` 
+            // console.log(taskElement.innerHTML);
+        }
+
+        /// above code errors, clicking delete and edit is also striking task 
+        // make something which very button specific and error free
 
         
 
