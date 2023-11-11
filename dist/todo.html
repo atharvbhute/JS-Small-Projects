@@ -230,27 +230,45 @@
 
         const strike = document.querySelector("#taskList");
         strike.addEventListener('click',(e)=>{
-            let targetElement = e.target;
-            strikeTask(targetElement);
+            let targetElement = e.target;   
+            let operation = targetElement.id;
+            switch (operation) {
+
+                case "task-completed":
+                    
+                    strikeTask(targetElement);
+                    
+                    break;
+                
+                case "edit-task" : 
+                    
+                    break;
+                
+                case "delete-task" : 
+                    
+                    // deleteTask(targetElement);
+
+                    break;    
+            
+                default:
+
+                    break;
+            }
         });
 
         function strikeTask(taskElement){
             let elementToStrike = document.getElementById(`${taskElement.getAttribute('value')}`);
-            console.log(elementToStrike);
-            // taskElement.classList.add("line-through");
             const listtaskitem = elementToStrike.innerHTML;
             elementToStrike.innerHTML = `<s>${listtaskitem}</s>` 
-            // console.log(taskElement.innerHTML);
         }
 
         /// above code errors, clicking delete and edit is also striking task 
         // make something which very button specific and error free
 
-        
-
-         
-        
-
+        // function deleteTask(taskElement) {
+        //     let elementToDelete = document.getElementById(`${taskElement.getAttribute('value')}`);
+        //     elementToDelete.remove();       
+        // }
             
     </script>
 <html>
