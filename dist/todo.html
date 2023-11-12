@@ -67,7 +67,7 @@
          } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js";
 
 
-        import { getFirestore, collection, addDoc, getDocs, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
 
 
         const firebaseConfig = {
@@ -228,8 +228,8 @@
 
 // +++++++++++++++++ Completed, Edit and Delete Task +++++++++++++++++++++++++++++++++
 
-        const strike = document.querySelector("#taskList");
-        strike.addEventListener('click',(e)=>{
+        const taskDiv = document.querySelector("#taskList");
+        taskDiv.addEventListener('click',(e)=>{
             let targetElement = e.target;   
             let operation = targetElement.id;
             switch (operation) {
@@ -246,7 +246,7 @@
                 
                 case "delete-task" : 
                     
-                    // deleteTask(targetElement);
+                    deleteTask(targetElement);
 
                     break;    
             
@@ -256,19 +256,29 @@
             }
         });
 
-        function strikeTask(taskElement){
+        async function strikeTask(taskElement){
             let elementToStrike = document.getElementById(`${taskElement.getAttribute('value')}`);
+
+            const documentToStrike = doc(db, auth.currentUser.uid, elementToStrike.id);
+
+            await updateDoc(documentToStrike, {
+                completed: true
+            });
             const listtaskitem = elementToStrike.innerHTML;
             elementToStrike.innerHTML = `<s>${listtaskitem}</s>` 
         }
 
         /// above code errors, clicking delete and edit is also striking task 
-        // make something which very button specific and error free
+        // Delete function , it deleted task from data and as well as from HTML Document
+        async function deleteTask(taskElement) {
+            let elementToDelete = document.getElementById(`${taskElement.getAttribute('value')}`);
 
-        // function deleteTask(taskElement) {
-        //     let elementToDelete = document.getElementById(`${taskElement.getAttribute('value')}`);
-        //     elementToDelete.remove();       
-        // }
+            if (confirm("Are you sure?")) {
+                await deleteDoc(doc(db, auth.currentUser.uid, elementToDelete.id)); 
+                elementToDelete.parentElement.nextElementSibling.remove()
+                elementToDelete.parentElement.remove();                
+            }            
+        }
             
     </script>
 <html>
