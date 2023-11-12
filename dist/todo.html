@@ -37,7 +37,7 @@
         <div id="todolist-page" class="w-[600px] h-[700px] bg-white shadow-xl shadow-black rounded-3xl flex flex-col pt-0 space-y-8 p-8">
             <div class="flex flex-col justify-between mt-10 ml-4 space-y-6">
                 <div class="flex flex-row justify-between">
-                    <h3 class="text-xl">Hi, Atharv</h3>
+                    <h3 class="text-xl">Hi, Warrior!</h3>
                     <button id="logOut" class="float-right h-15 w-30 rounded-xl p-3 text-lg font-semibold text-white transition-colors duration-300 bg-blue-500 shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4">Log Out</button>
                 </div>
                 <hr>
@@ -209,9 +209,9 @@
             
             const li = document.createElement('li');
             li.innerHTML  = `<div class="pl-5 p-2 w-full rounded-xl text-black flex flex-row space-x-1">
-                                <p id="${item.id}" class="w-full">${item.data().taskName}</p>
+                                <p id="${item.id}" class="w-full">${item.data().completed ? "<s>" + item.data().taskName + "</S>" : item.data().taskName}</p>
                                 <div class="text-[20px] flex flex-row space-x-3 justify-end w-full">
-                                    <i id="task-completed" class="bi bi-check2-square" value="${item.id}"></i>
+                                    <i id="task-completed" class="${item.data().completed ? 'bi bi-check2-square'  : 'bi bi-square' }" value="${item.id}"></i>
                                     <i id="edit-task" class="pl-3 bi bi-pencil-square" value="${item.id}"></i>
                                     <i id="delete-task" class="bi bi-trash" value="${item.id}"></i>
                                 </div> 
@@ -229,6 +229,7 @@
 // +++++++++++++++++ Completed, Edit and Delete Task +++++++++++++++++++++++++++++++++
 
         const taskDiv = document.querySelector("#taskList");
+
         taskDiv.addEventListener('click',(e)=>{
             let targetElement = e.target;   
             let operation = targetElement.id;
@@ -241,6 +242,8 @@
                     break;
                 
                 case "edit-task" : 
+                    
+                    editTask(targetElement);
                     
                     break;
                 
@@ -261,15 +264,26 @@
 
             const documentToStrike = doc(db, auth.currentUser.uid, elementToStrike.id);
 
-            await updateDoc(documentToStrike, {
-                completed: true
-            });
+            const docSnap = await getDoc(documentToStrike);
+
             const listtaskitem = elementToStrike.innerHTML;
-            elementToStrike.innerHTML = `<s>${listtaskitem}</s>` 
+
+            if (docSnap.data().completed) {
+                await updateDoc(documentToStrike, {
+                    completed: false
+                }); 
+                elementToStrike.innerHTML = `${listtaskitem}`                              
+            } else {
+                await updateDoc(documentToStrike, {
+                    completed: true
+                });    
+                elementToStrike.innerHTML = `<s>${listtaskitem}</s>`            
+            }  
         }
 
-        /// above code errors, clicking delete and edit is also striking task 
+
         // Delete function , it deleted task from data and as well as from HTML Document
+
         async function deleteTask(taskElement) {
             let elementToDelete = document.getElementById(`${taskElement.getAttribute('value')}`);
 
@@ -278,6 +292,27 @@
                 elementToDelete.parentElement.nextElementSibling.remove()
                 elementToDelete.parentElement.remove();                
             }            
+        }
+
+        async function editTask(taskElement){
+
+            const editedTask = prompt("Enter new name here");
+
+            let elementToEdit = document.getElementById(`${taskElement.getAttribute('value')}`); // for real time edit
+
+            const documentToEdit = doc(db, auth.currentUser.uid, elementToEdit.id);
+
+            const docSnap = await getDoc(documentToEdit);
+
+            await updateDoc(documentToEdit, {
+                    taskName :  editedTask
+                });
+            
+            if (docSnap.data().completed) {
+                elementToEdit.innerHTML = `<s>${editedTask}</s>`     
+            } else {    
+                elementToEdit.innerHTML = `${editedTask}`                              
+            }               
         }
             
     </script>
