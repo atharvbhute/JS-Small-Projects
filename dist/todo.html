@@ -259,6 +259,8 @@
             }
         });
 
+        ///// ++++++++++++++++++ mark task as complete +++++++++++++++++
+
         async function strikeTask(taskElement){
             let elementToStrike = document.getElementById(`${taskElement.getAttribute('value')}`);
 
@@ -282,7 +284,7 @@
         }
 
 
-        // Delete function , it deleted task from data and as well as from HTML Document
+        // Delete function , it deletes task from data and as well as from HTML Document
 
         async function deleteTask(taskElement) {
             let elementToDelete = document.getElementById(`${taskElement.getAttribute('value')}`);
@@ -294,6 +296,8 @@
             }            
         }
 
+        ///++++++++++++++++ to edit task+++++++++++++++++++++++++++++++++++++
+
         async function editTask(taskElement){
 
             const editedTask = prompt("Enter new name here");
@@ -303,7 +307,7 @@
             const documentToEdit = doc(db, auth.currentUser.uid, elementToEdit.id);
 
             const docSnap = await getDoc(documentToEdit);
-
+ 
             await updateDoc(documentToEdit, {
                     taskName :  editedTask
                 });
@@ -313,7 +317,6 @@
             } else {    
                 elementToEdit.innerHTML = `${editedTask}`                              
             }               
-        }
-            
+        }      
     </script>
 <html>
